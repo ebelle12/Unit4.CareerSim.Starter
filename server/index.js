@@ -100,11 +100,12 @@ const init = async () => {
     await client.connect();
     console.log('connected to database');
     createTables(
-        
+
     )
 
     console.log('tables created');
-    
+    createUser({username:"belleeva", password:"good1"})
+    createProduct({product_id:"name"})
     console.log('data seeded');
     const port = process.env.PORT || 3000;
     app.listen(port, () => console.log(`listening on port ${port}`));

@@ -15,11 +15,23 @@ DROP TABLE IF EXISTS cart_products;
 CREATE TABLE users(
     id SERIAL PRIMARY KEY, 
     name VARCHAR(50),
-    username VARCHAR(50);
+    username VARCHAR(50),
     email VARCHAR(50),
-    password VARCHAR(50),
-    admin BOOLEAN DEFAULT false
-  
+    password VARCHAR(255),
+    admin BOOLEAN DEFAULT false,
+    )
+  CREATE TABLE products(
+    id UUID DEFAULT gen_random_uuid(),
+    name VARCHAR(20) UNIQUE NOT NULL,
+    inventory NUMERIC,
+    PRIMARY KEY (id)
+  );
+  CREATE TABLE cart_products(
+    id UUID DEFAULT gen_random_uuid(),
+    product_id REFERENCES products(id)
+    user_id REFERENCES users(id)
+    amount NUMERIC,
+    PRIMARY KEY (id)
 
 );
 
@@ -30,9 +42,9 @@ CREATE TABLE users(
 
 const createUser = async ({ username, password }) => {
     const SQL = `
-    INSERT INTO users(id, username, password) VALUES($1, $2, $3) RETURNING *
+    INSERT INTO users(username, password) VALUES($1, $2) RETURNING *
   `;
-    const response = await client.query(SQL, [uuid.v4(), username, await bcrypt.hash(password, 5)]);
+    const response = await client.query(SQL, [username, await bcrypt.hash(password, 5)]);
     return response.rows[0];
 };
 
@@ -143,6 +155,8 @@ module.exports = {
     createTables,
     createUser,
     createProduct,
+    createCart,
+    createCartProducts,
     fetchUsers,
     fetchProducts,
     fetchCarts,
